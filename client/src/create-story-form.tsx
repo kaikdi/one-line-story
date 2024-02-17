@@ -5,8 +5,24 @@ export const CreateStoryForm = () => {
   const amountOfSentencesInput = useRef<HTMLInputElement>(null);
   const topicInput = useRef<HTMLInputElement>(null);
 
-  const onSubmit: React.FormEventHandler = (e) => {
+  const onSubmit: React.FormEventHandler = async (e) => {
     e.preventDefault();
+
+    const response = await fetch("http://localhost:3001/create_story", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify({
+        title: titleInput.current?.value,
+        sentences: Array(amountOfSentencesInput.current?.value).fill(undefined),
+        topic: topicInput.current?.value,
+      }),
+    });
+
+    const stories = await response.json();
+
+    console.log(stories);
   };
 
   return (

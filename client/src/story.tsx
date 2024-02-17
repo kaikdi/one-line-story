@@ -4,4 +4,14 @@ export type Story = {
   topic?: string;
 };
 
-export const StoryComponent: React.FC<Story> = () => <></>;
+export const StoryComponent: React.FC<Story> = ({
+  title,
+  amountOfSentences,
+  topic,
+}) => (
+  <>
+    <span>{title}</span>
+    <span>{amountOfSentences}</span>
+    <span>{topic}</span>
+  </>
+);
