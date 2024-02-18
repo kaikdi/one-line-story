@@ -13,12 +13,25 @@ type Story = {
   topic?: string;
 };
 
-class State {
-  public stories: Story[] = [];
-  public openStories: Story[] = [];
-  public closedStories: Story[] = [];
+type Stories = {
+  open: {
+    [key: string]: Story;
+  };
+  closed: {
+    [key: string]: Story;
+  };
+};
 
-  public insertStory = (story: Story) => this.stories.push(story);
+class State {
+  public stories: Stories = {
+    open: {},
+    closed: {},
+  };
+
+  public insertStory = (story: Story) => {
+    const index = Object.keys(this.stories).length;
+    this.stories.open[index] = story;
+  };
 }
 
 const state = new State();
@@ -26,24 +39,36 @@ const state = new State();
 app.use(json());
 app.use(cors({ origin: "http://localhost:3000" }));
 
-app.post("/create_story", (req, res) => {
-  state.insertStory(req.body);
-
-  res.send(state.stories);
-
-  console.log(state.openStories);
-});
-
-app.get("/list_open_stories", (_req, res) => {
-  res.send(state.openStories);
-});
-
-app.get("/list_closed_stories", (_req, res) => {
-  res.send(state.closedStories);
-});
-
 wss.on("connection", (ws) => {
-  ws.send("OK");
+  ws.send(
+    JSON.stringify({
+      type: "update_stories",
+      payload: state.stories,
+    }),
+  );
+
+  ws.on("message", (rawData) => {
+    const data = JSON.parse(rawData.toString());
+
+    switch (data.type) {
+      case "create_story":
+        state.insertStory({
+          title: data.title,
+          sentences: data.sentences,
+          topic: data.topic,
+        });
+
+        wss.clients.forEach((client) =>
+          client.send(
+            JSON.stringify({
+              type: "update_stories",
+              payload: state.stories,
+            }),
+          ),
+        );
+        break;
+    }
+  });
 });
 
 const PORT = 3001;
