@@ -7,16 +7,6 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
-type Story = {
-  title: string;
-  sentences: (string | null)[];
-  topic?: string;
-};
-
-type Stories = {
-  [key: string]: Story;
-};
-
 class State {
   public stories: Stories = {};
 
@@ -26,17 +16,13 @@ class State {
   };
 
   public insertSentence = (storyKey: string, sentence: string) => {
-    const story = this.stories[storyKey];
-
-    if (!story) {
+    if (!(storyKey in this.stories)) {
       return;
     }
 
+    const story = this.stories[storyKey];
     const indexOfFirstEmptySentence = story.sentences.indexOf(null);
-
-    if (indexOfFirstEmptySentence !== story.sentences.length) {
-      story.sentences[indexOfFirstEmptySentence] = sentence;
-    }
+    story.sentences[indexOfFirstEmptySentence] = sentence;
   };
 }
 
