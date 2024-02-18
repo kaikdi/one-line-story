@@ -15,7 +15,7 @@ export const CreateStoryForm: React.FC<CreateStoryFormProps> = ({ ws }) => {
 
     ws.send(
       JSON.stringify({
-        type: "create_story",
+        type: "insert_story",
         title: titleRef.current?.value,
         sentences: Array(
           parseInt(amountOfSentencesRef.current?.value ?? ""),
@@ -34,7 +34,6 @@ export const CreateStoryForm: React.FC<CreateStoryFormProps> = ({ ws }) => {
       className="flex flex-col justify-center gap-2 p-4 w-1/3"
     >
       <h4 className="text-white text-center mb-4">Create Story</h4>
-
       <label htmlFor="title" className="text-white">
         Title
       </label>
@@ -46,7 +45,6 @@ export const CreateStoryForm: React.FC<CreateStoryFormProps> = ({ ws }) => {
         ref={titleRef}
         className="rounded-sm"
       />
-
       <label htmlFor="amountOfSentences" className="text-white">
         Amount of Sentences
       </label>
@@ -58,7 +56,6 @@ export const CreateStoryForm: React.FC<CreateStoryFormProps> = ({ ws }) => {
         ref={amountOfSentencesRef}
         className="rounded-sm"
       />
-
       <label htmlFor="topic" className="text-white">
         Topic
       </label>
@@ -69,7 +66,6 @@ export const CreateStoryForm: React.FC<CreateStoryFormProps> = ({ ws }) => {
         ref={topicRef}
         className="rounded-sm"
       />
-
       <button
         type="submit"
         className="outline outline-2 outline-white rounded-sm text-white"

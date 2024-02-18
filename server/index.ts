@@ -9,7 +9,7 @@ const wss = new WebSocketServer({ server });
 
 type Story = {
   title: string;
-  sentences: (string | undefined)[];
+  sentences: (string | null)[];
   topic?: string;
 };
 
@@ -29,9 +29,36 @@ class State {
   };
 
   public insertStory = (story: Story) => {
-    const index = Object.keys(this.stories).length;
+    const index = Object.keys(this.stories.open).length;
     this.stories.open[index] = story;
   };
+
+  public insertSentence = (storyKey: string, sentence: string) => {
+    const story = this.stories.open[storyKey];
+
+    if (!story) {
+      return;
+    }
+
+    const indexOfFirstEmptySentence = story.sentences.indexOf(null);
+
+    if (!this.isStoryFull(indexOfFirstEmptySentence, storyKey)) {
+      story.sentences[indexOfFirstEmptySentence] = sentence;
+    }
+  };
+
+  private isStoryFull(index: number, storyKey: string) {
+    const story = this.stories.open[storyKey];
+
+    if (index === story.sentences.length - 1) {
+      this.stories.closed = { [storyKey]: story };
+      delete this.stories.open[storyKey];
+
+      return true;
+    }
+
+    return false;
+  }
 }
 
 const state = new State();
@@ -40,18 +67,18 @@ app.use(json());
 app.use(cors({ origin: "http://localhost:3000" }));
 
 wss.on("connection", (ws) => {
-  ws.send(
-    JSON.stringify({
-      type: "update_stories",
-      payload: state.stories,
-    }),
-  );
+  const updateStories = {
+    type: "update_stories",
+    payload: state.stories,
+  };
+
+  ws.send(JSON.stringify(updateStories));
 
   ws.on("message", (rawData) => {
     const data = JSON.parse(rawData.toString());
 
     switch (data.type) {
-      case "create_story":
+      case "insert_story":
         state.insertStory({
           title: data.title,
           sentences: data.sentences,
@@ -59,14 +86,17 @@ wss.on("connection", (ws) => {
         });
 
         wss.clients.forEach((client) =>
-          client.send(
-            JSON.stringify({
-              type: "update_stories",
-              payload: state.stories,
-            }),
-          ),
+          client.send(JSON.stringify(updateStories)),
         );
         break;
+      case "insert_sentence": {
+        state.insertSentence(data.storyKey, data.sentence);
+
+        wss.clients.forEach((client) =>
+          client.send(JSON.stringify(updateStories)),
+        );
+        break;
+      }
     }
   });
 });

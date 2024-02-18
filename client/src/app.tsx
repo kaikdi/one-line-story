@@ -8,7 +8,10 @@ export const App = () => {
     open: {},
     closed: {},
   });
-  const [selectedStory, setSelectedStory] = useState<Story>();
+  const [selectedStory, setSelectedStory] = useState<{
+    key: string;
+    story: Story;
+  }>();
 
   ws.current.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -20,9 +23,28 @@ export const App = () => {
     }
   };
 
+  const formRef = useRef<HTMLFormElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  const onSubmit: React.FormEventHandler = (e) => {
+    e.preventDefault();
+
+    ws.current.send(
+      JSON.stringify({
+        type: "insert_sentence",
+        storyKey: selectedStory?.key,
+        sentence: textAreaRef.current?.value,
+      }),
+    );
+
+    formRef.current?.reset();
+  };
+
+  console.log(stories, selectedStory?.key);
+
   return (
     <main className="flex flex-col items-center bg-purple-800 h-screen">
-      <div className="flex w-full gap-8  border-b-4 border-b-white">
+      <div className="flex justify-around gap-8 w-full border-b-4 border-b-white">
         <CreateStoryForm ws={ws.current} />
         <StoryList
           title="Open Stories"
@@ -35,17 +57,37 @@ export const App = () => {
           setSelectedStory={setSelectedStory}
         />
       </div>
-      <div className="h-full flex flex-col justify-around">
-        <p className="">
-          {selectedStory?.sentences[selectedStory.sentences.length - 1]}
-        </p>
-        <textarea
-          rows={6}
-          cols={60}
-          maxLength={250}
-          className="mt-4 resize-none"
-        />
-      </div>
+      {selectedStory && (
+        <div className="h-full flex flex-col justify-around">
+          <p className="text-white text-center">
+            {(
+              stories.open[selectedStory?.key] ??
+              stories.closed[selectedStory?.key]
+            ).sentences
+              .filter(Boolean)
+              .at(-1)}
+          </p>
+          <form
+            ref={formRef}
+            onSubmit={onSubmit}
+            className="flex flex-col justify-center gap-2 p-4"
+          >
+            <textarea
+              ref={textAreaRef}
+              rows={6}
+              cols={60}
+              maxLength={250}
+              className="mt-4 resize-none"
+            />
+            <button
+              type="submit"
+              className="outline outline-2 outline-white rounded-sm text-white"
+            >
+              Submit Sentence
+            </button>
+          </form>
+        </div>
+      )}
     </main>
   );
 };

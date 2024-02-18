@@ -11,7 +11,15 @@ export type Stories = {
 type StoryListProps = {
   title: string;
   stories: Stories;
-  setSelectedStory: React.Dispatch<React.SetStateAction<Story | undefined>>;
+  setSelectedStory: React.Dispatch<
+    React.SetStateAction<
+      | {
+          key: string;
+          story: Story;
+        }
+      | undefined
+    >
+  >;
 };
 
 export const StoryList: React.FC<StoryListProps> = ({
@@ -25,7 +33,7 @@ export const StoryList: React.FC<StoryListProps> = ({
       <li
         key={key}
         className="flex justify-between gap-2"
-        onClick={() => setSelectedStory(story)}
+        onClick={() => setSelectedStory({ key, story })}
       >
         <span className="text-white">Topic: {story.topic}</span>
         <span className="text-white">Title: {story.title}</span>
