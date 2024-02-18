@@ -3,11 +3,8 @@ import { useRef } from "react";
 export const InsertSentence: React.FC<{
   ws: WebSocket;
   stories: Stories;
-  selectedStory: {
-    key: string;
-    data: Story;
-  };
-}> = ({ ws, stories, selectedStory }) => {
+  selectedStoryKey: string;
+}> = ({ ws, stories, selectedStoryKey }) => {
   const formRef = useRef<HTMLFormElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -17,7 +14,7 @@ export const InsertSentence: React.FC<{
     ws.send(
       JSON.stringify({
         type: "insert_sentence",
-        storyKey: selectedStory?.key,
+        storyKey: selectedStoryKey,
         sentence: textAreaRef.current?.value,
       }),
     );
@@ -28,10 +25,10 @@ export const InsertSentence: React.FC<{
   return (
     <>
       <p className="text-white text-center">
-        The latest sentence of {selectedStory.data.title}:
+        The latest sentence of {stories[selectedStoryKey].title}:
       </p>
       <p className="text-white text-center">
-        {stories[selectedStory.key].sentences.filter(Boolean).at(-1)}
+        {stories[selectedStoryKey].sentences.filter(Boolean).at(-1)}
       </p>
       <form
         ref={formRef}
