@@ -1,10 +1,8 @@
 import React, { useRef } from "react";
 
-type CreateStoryFormProps = {
+export const InsertStory: React.FC<{
   ws: WebSocket;
-};
-
-export const CreateStoryForm: React.FC<CreateStoryFormProps> = ({ ws }) => {
+}> = ({ ws }) => {
   const formRef = useRef<HTMLFormElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const amountOfSentencesRef = useRef<HTMLInputElement>(null);
@@ -33,7 +31,6 @@ export const CreateStoryForm: React.FC<CreateStoryFormProps> = ({ ws }) => {
       onSubmit={onSubmit}
       className="flex flex-col justify-center gap-2 p-4 w-1/3"
     >
-      <h4 className="text-white text-center mb-4">Create Story</h4>
       <label htmlFor="title" className="text-white">
         Title
       </label>

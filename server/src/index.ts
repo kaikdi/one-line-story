@@ -14,27 +14,19 @@ type Story = {
 };
 
 type Stories = {
-  open: {
-    [key: string]: Story;
-  };
-  closed: {
-    [key: string]: Story;
-  };
+  [key: string]: Story;
 };
 
 class State {
-  public stories: Stories = {
-    open: {},
-    closed: {},
-  };
+  public stories: Stories = {};
 
   public insertStory = (story: Story) => {
-    const index = Object.keys(this.stories.open).length;
-    this.stories.open[index] = story;
+    const index = Object.keys(this.stories).length;
+    this.stories[index] = story;
   };
 
   public insertSentence = (storyKey: string, sentence: string) => {
-    const story = this.stories.open[storyKey];
+    const story = this.stories[storyKey];
 
     if (!story) {
       return;
@@ -42,23 +34,10 @@ class State {
 
     const indexOfFirstEmptySentence = story.sentences.indexOf(null);
 
-    if (!this.isStoryFull(indexOfFirstEmptySentence, storyKey)) {
+    if (indexOfFirstEmptySentence !== story.sentences.length) {
       story.sentences[indexOfFirstEmptySentence] = sentence;
     }
   };
-
-  private isStoryFull(index: number, storyKey: string) {
-    const story = this.stories.open[storyKey];
-
-    if (index === story.sentences.length - 1) {
-      this.stories.closed = { [storyKey]: story };
-      delete this.stories.open[storyKey];
-
-      return true;
-    }
-
-    return false;
-  }
 }
 
 const state = new State();

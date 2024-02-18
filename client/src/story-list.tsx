@@ -1,12 +1,4 @@
-export type Story = {
-  title: string;
-  sentences: (string | null)[];
-  topic?: string;
-};
-
-export type Stories = {
-  [key: string]: Story;
-};
+import React from "react";
 
 type StoryListProps = {
   title: string;
@@ -15,7 +7,7 @@ type StoryListProps = {
     React.SetStateAction<
       | {
           key: string;
-          story: Story;
+          data: Story;
         }
       | undefined
     >
@@ -27,20 +19,22 @@ export const StoryList: React.FC<StoryListProps> = ({
   stories,
   setSelectedStory,
 }) => (
-  <ul className="w-1/3 p-4">
+  <div className="w-1/3 p-4">
     <h4 className="text-white text-center mb-4">{title}</h4>
-    {Object.entries(stories).map(([key, story]) => (
-      <li
-        key={key}
-        className="flex justify-between gap-2"
-        onClick={() => setSelectedStory({ key, story })}
-      >
-        <span className="text-white">Topic: {story.topic}</span>
-        <span className="text-white">Title: {story.title}</span>
-        <span className="text-white">
-          {story.sentences.filter(Boolean).length}/{story.sentences.length}
-        </span>
-      </li>
-    ))}
-  </ul>
+    <ul className="flex flex-col gap-2 w-full p-4 overflow-y-auto">
+      {Object.entries(stories).map(([key, story]) => (
+        <li
+          key={key}
+          className="flex justify-between gap-2 p-2 outline outline-1 outline-white rounded cursor-pointer"
+          onClick={() => setSelectedStory({ key, data: story })}
+        >
+          <span className="text-white">Topic: {story.topic}</span>
+          <span className="text-white">Title: {story.title}</span>
+          <span className="text-white">
+            {story.sentences.filter(Boolean).length}/{story.sentences.length}
+          </span>
+        </li>
+      ))}
+    </ul>
+  </div>
 );
